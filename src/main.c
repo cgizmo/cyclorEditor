@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <SDL/SDL.h>
+#include <SDL/SDL_ttf.h>
 
 #include "resources.h"
 
@@ -22,6 +23,11 @@ int main() {
     exit(1);
   }
 
+  if(TTF_Init() == -1) {
+    perror("FATAL - TTF Init failed");
+    exit(1);
+  }
+
   screen = SDL_SetVideoMode(WIDTH, HEIGHT, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
   if(screen == NULL) {
     perror("FATAL - Could not create screen surface");
@@ -37,6 +43,7 @@ int main() {
   loop(screen);
 
   freeResources(res);
+  TTF_Quit();
   SDL_Quit();
   return 0;
 }
@@ -44,6 +51,7 @@ int main() {
 void loop(SDL_Surface *screen) {
   int loop = TRUE;
   SDL_Event ev;
+  TTF_Font *font = TTF_OpenFont("res/dejavu.ttf", 25);
 
   /* The user control panel to select blocks */
   SDL_Surface *control = NULL;
@@ -80,4 +88,6 @@ void loop(SDL_Surface *screen) {
 
   SDL_FreeSurface(control);
   SDL_FreeSurface(map);
+
+  TTF_CloseFont(font);
 }
