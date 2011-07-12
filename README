@@ -1,0 +1,5 @@
+To run : 
+cmake .
+make
+cd bin
+./cyclorEditor
