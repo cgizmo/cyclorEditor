@@ -13,7 +13,7 @@
 
 #define CONTROL_SIZE 80
 
-void loop(SDL_Surface*);
+void loop(SDL_Surface*, resources_t*);
 
 int main() {
   SDL_Surface *screen;
@@ -40,7 +40,7 @@ int main() {
   if(res == NULL)
     exit(1);
 
-  loop(screen);
+  loop(screen, res);
 
   freeResources(res);
   TTF_Quit();
@@ -48,7 +48,7 @@ int main() {
   return 0;
 }
 
-void loop(SDL_Surface *screen) {
+void loop(SDL_Surface *screen, resources_t* res) {
   int loop = TRUE;
   SDL_Event ev;
   TTF_Font *font = TTF_OpenFont("res/dejavu.ttf", 25);
