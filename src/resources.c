@@ -4,6 +4,7 @@
 #include <SDL/SDL.h>
 
 #include "resources.h"
+#include "helper.h"
 
 /* HELPERS */
 char* strdup2(char* orig) {
@@ -21,6 +22,7 @@ res_t* createRes(char *id, char *resname) {
 
   r->name = strdup2(id);
   r->img = SDL_LoadBMP(resname);
+  stdFormat(&r->img);
 
   return r;
 }

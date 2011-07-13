@@ -4,6 +4,7 @@
 #include <SDL/SDL_ttf.h>
 
 #include "resources.h"
+#include "helper.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -60,6 +61,7 @@ void loop(SDL_Surface *screen, resources_t* res) {
   control = SDL_CreateRGBSurface(SDL_HWSURFACE, WIDTH, CONTROL_SIZE, 32, 0, 0, 0, 0);
   controlPos.x = 0;
   controlPos.y = HEIGHT - CONTROL_SIZE;
+  stdFormat(&control);
 
   /* The map area */
   SDL_Surface *map = NULL;
@@ -68,6 +70,7 @@ void loop(SDL_Surface *screen, resources_t* res) {
   map = SDL_CreateRGBSurface(SDL_HWSURFACE, WIDTH, HEIGHT - CONTROL_SIZE, 32, 0, 0, 0, 0);
   mapPos.x = 0;
   mapPos.y = 0;
+  stdFormat(&map);
 
   SDL_FillRect(control, NULL, SDL_MapRGB(screen->format, 255, 0, 0));
   SDL_FillRect(map, NULL, SDL_MapRGB(screen->format, 0, 0, 255));
@@ -91,3 +94,5 @@ void loop(SDL_Surface *screen, resources_t* res) {
 
   TTF_CloseFont(font);
 }
+
+
