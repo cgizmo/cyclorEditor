@@ -15,7 +15,7 @@
 
 void loop(SDL_Surface*, resources_t*);
 
-int main() {
+int main(int argc, char **argv) {
   SDL_Surface *screen;
 
   if(SDL_Init(SDL_INIT_VIDEO) == -1) {
