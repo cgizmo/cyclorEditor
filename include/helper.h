@@ -4,5 +4,6 @@
 #include <SDL/SDL.h>
 
 void stdFormat(SDL_Surface**);
+int min(int, int);
 
 #endif

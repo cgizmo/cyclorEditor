@@ -13,8 +13,10 @@
 #define HEIGHT 768
 
 #define CONTROL_SIZE 200
+#define PADDING 20
 
 void loop(SDL_Surface*, resources_t*);
+void displayControls(SDL_Surface *control, resources_t* res, int start, int disp);
 
 int main(int argc, char **argv) {
   SDL_Surface *screen;
@@ -72,8 +74,8 @@ void loop(SDL_Surface *screen, resources_t* res) {
   mapPos.y = 0;
   stdFormat(&map);
 
-  SDL_FillRect(control, NULL, SDL_MapRGB(screen->format, 222, 222, 222));
   SDL_FillRect(map, NULL, SDL_MapRGB(screen->format, 250, 250, 250));
+  displayControls(control, res, 0, 10);
 
   while(loop) {
     SDL_PollEvent(&ev);
@@ -95,4 +97,26 @@ void loop(SDL_Surface *screen, resources_t* res) {
   TTF_CloseFont(font);
 }
 
+/* Will display controls res->rs[start] to res->rs[start + disp] */
+void displayControls(SDL_Surface *control, resources_t* res, int start, int disp) {
+  int i;
+  // To avoid array access errors
+  disp = min(res->num - start, disp);
 
+  SDL_Rect mask;
+  mask.x = 0;
+  mask.y = 0;
+  mask.h = CONTROL_SIZE - (2*PADDING); // Control size minus 10 pixels for padding
+  // Make some place for the disp controls, keeping a PADDING px distance in between them
+  mask.w = (WIDTH - (disp+1)*PADDING) / disp; 
+
+  SDL_Rect pos;
+  pos.x = PADDING; // padding on the right
+  pos.y = PADDING; // padding on the top
+
+  SDL_FillRect(control, NULL, SDL_MapRGB(control->format, 222, 222, 222));
+  for(i=start; i<start+disp; i++) {
+    SDL_BlitSurface(res->rs[i]->img, &mask, control, &pos);
+    pos.x += mask.w + PADDING; // Move by one element to the right + padding
+  }
+}
