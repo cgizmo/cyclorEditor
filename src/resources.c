@@ -27,15 +27,6 @@ res_t* createRes(char *id, char *resname) {
   return r;
 }
 
-void cons(resources_t** res, res_t* r) {
-  resources_t *head = malloc(sizeof(resources_t));
-
-  head->r = r;
-  head->next = *res;
-
-  *res = head;
-}
-
 /* Returns a new string */
 char* strcat2(char *a, char *b) {
   char *out = malloc(sizeof(char) * (strlen(a) + strlen(b) + 1));
@@ -59,33 +50,41 @@ resources_t* loadResources(char *dir, char *filename)  {
 
   char id[150];
   char resname[150];
-  resources_t *res = NULL;
+  // r is an array of pointers to "res_t"s
+  res_t **rs = malloc(sizeof(res_t*));
 
+  // i will contain the number of elements in the array
+  int i=0;
   while(!feof(resfile)) {
     if(fscanf(resfile, "%s %s", id, resname) < 2)
       break;
 
     char *respath = strcat2(dir, resname);
-    cons(&res, createRes(id, respath));
+    res_t* r = createRes(id, respath);
     free(respath);
+
+    rs[i] = r;
+    i++;
+    rs = realloc(rs, (i+1) * sizeof(res_t*));
   }
+
+  resources_t *res = malloc(sizeof(resources_t));
+
+  res->num = i;
+  res->rs = rs;
 
   fclose(resfile);
   return res;
 }
 
 void freeResources(resources_t* res) {
-  resources_t* next = res;
-
-  while(next != NULL) {
-    res = next;
-
-    free(res->r->name);
-    SDL_FreeSurface(res->r->img);
-    free(res->r);
-
-    next = res->next;
-    free(res);
+  int i;
+  for(i=0; i<res->num; i++) {
+    free(res->rs[i]->name);
+    SDL_FreeSurface(res->rs[i]->img);
   }
+
+  free(res->rs);
+  free(res);
 }
 

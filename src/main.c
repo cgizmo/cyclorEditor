@@ -9,10 +9,10 @@
 #define TRUE 1
 #define FALSE 0
 
-#define WIDTH 800
-#define HEIGHT 600
+#define WIDTH 1024
+#define HEIGHT 768
 
-#define CONTROL_SIZE 80
+#define CONTROL_SIZE 200
 
 void loop(SDL_Surface*, resources_t*);
 
@@ -72,8 +72,8 @@ void loop(SDL_Surface *screen, resources_t* res) {
   mapPos.y = 0;
   stdFormat(&map);
 
-  SDL_FillRect(control, NULL, SDL_MapRGB(screen->format, 255, 0, 0));
-  SDL_FillRect(map, NULL, SDL_MapRGB(screen->format, 0, 0, 255));
+  SDL_FillRect(control, NULL, SDL_MapRGB(screen->format, 222, 222, 222));
+  SDL_FillRect(map, NULL, SDL_MapRGB(screen->format, 250, 250, 250));
 
   while(loop) {
     SDL_PollEvent(&ev);

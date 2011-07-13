@@ -10,9 +10,9 @@ typedef struct res {
 } res_t;
 
 /* Many resources */
-typedef struct resources { 
-  res_t* r;
-  struct resources *next;
+typedef struct resources {
+  int num;
+  res_t** rs;
 } resources_t;
 
 resources_t* loadResources(char *dir, char *filename);
