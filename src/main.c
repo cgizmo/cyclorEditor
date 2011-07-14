@@ -13,10 +13,17 @@
 #define HEIGHT 768
 
 #define CONTROL_SIZE 200
-#define PADDING 20
+#define FONT_SIZE 14
+#define PADDING 25    // > FONT_SIZE+5
+#define DISP_CONTROLS 3 // Num of controls to display
 
 void loop(SDL_Surface*, resources_t*);
-void displayControls(SDL_Surface *control, resources_t* res, int start, int disp);
+void displayControls(SDL_Surface *control, resources_t* res, int start, int disp, int selected);
+
+TTF_Font *font;
+
+SDL_Color black = {0, 0, 0};
+SDL_Color red = {255, 0, 0};
 
 int main(int argc, char **argv) {
   SDL_Surface *screen;
@@ -38,6 +45,7 @@ int main(int argc, char **argv) {
   }
 
   SDL_WM_SetCaption("CYCLOR - Editeur de niveau", NULL);
+  //SDL_EnableKeyRepeat(100, 10);
 
   resources_t* res = loadResources("res/", "resources");
   if(res == NULL)
@@ -54,7 +62,7 @@ int main(int argc, char **argv) {
 void loop(SDL_Surface *screen, resources_t* res) {
   int loop = TRUE;
   SDL_Event ev;
-  TTF_Font *font = TTF_OpenFont("res/dejavu.ttf", 25);
+  font = TTF_OpenFont("res/dejavu.ttf", FONT_SIZE);
 
   /* The user control panel to select blocks */
   SDL_Surface *control = NULL;
@@ -75,13 +83,32 @@ void loop(SDL_Surface *screen, resources_t* res) {
   stdFormat(&map);
 
   SDL_FillRect(map, NULL, SDL_MapRGB(screen->format, 250, 250, 250));
-  displayControls(control, res, 0, 10);
+  displayControls(control, res, 0, DISP_CONTROLS, 0);
 
+  int selected = 0; // Absolute
+  int start = 0;
   while(loop) {
-    SDL_PollEvent(&ev);
+    SDL_WaitEvent(&ev);
 
     switch(ev.type) {
-      case SDL_QUIT: loop = FALSE; break;
+      case SDL_QUIT: 
+        loop = FALSE; break;
+
+      case SDL_KEYUP:
+        if(ev.key.keysym.sym == SDLK_LEFT) 
+          selected = max(0, selected-1);
+        else if(ev.key.keysym.sym == SDLK_RIGHT)
+          selected = min(res->num-1, selected+1);
+
+        // Scrolling of the control bar
+        if(start > selected)
+          start = selected;
+        if(selected > start + DISP_CONTROLS-1)
+          start = selected - DISP_CONTROLS + 1;
+        
+        displayControls(control, res, start, DISP_CONTROLS, selected); // NOTE : selected remains absolute
+        break;
+
       default: break;
     }
     
@@ -97,8 +124,8 @@ void loop(SDL_Surface *screen, resources_t* res) {
   TTF_CloseFont(font);
 }
 
-/* Will display controls res->rs[start] to res->rs[start + disp] */
-void displayControls(SDL_Surface *control, resources_t* res, int start, int disp) {
+/* Will display controls res->rs[start] to res->rs[start + disp], with # selected highlighted */
+void displayControls(SDL_Surface *control, resources_t* res, int start, int disp, int selected) {
   int i;
   // To avoid array access errors
   disp = min(res->num - start, disp);
@@ -115,8 +142,25 @@ void displayControls(SDL_Surface *control, resources_t* res, int start, int disp
   pos.y = PADDING; // padding on the top
 
   SDL_FillRect(control, NULL, SDL_MapRGB(control->format, 222, 222, 222));
+
+  SDL_Surface *text = NULL;
+  SDL_Color *curr_color = &black;
   for(i=start; i<start+disp; i++) {
+    if(i == selected)
+      curr_color = &red;
+    else
+      curr_color = &black;
+
+    text = TTF_RenderText_Solid(font, res->rs[i]->name, *curr_color);
+
     SDL_BlitSurface(res->rs[i]->img, &mask, control, &pos);
+
+    pos.y -= FONT_SIZE+5;
+    SDL_BlitSurface(text, NULL, control, &pos);
+    pos.y += FONT_SIZE+5;
+
     pos.x += mask.w + PADDING; // Move by one element to the right + padding
+
+    SDL_FreeSurface(text);
   }
 }
