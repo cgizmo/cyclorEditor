@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
   }
 
   SDL_WM_SetCaption("CYCLOR - Editeur de niveau", NULL);
-  //SDL_EnableKeyRepeat(100, 10);
+  SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 
   resources_t* res = loadResources("res/", "resources");
   if(res == NULL)
@@ -82,7 +82,7 @@ void loop(SDL_Surface *screen, resources_t* res) {
   mapPos.y = 0;
   stdFormat(&map);
 
-  SDL_FillRect(map, NULL, SDL_MapRGB(screen->format, 250, 250, 250));
+  SDL_FillRect(map, NULL, SDL_MapRGB(screen->format, 255, 255, 255));
   displayControls(control, res, 0, DISP_CONTROLS, 0);
 
   int selected = 0; // Absolute
@@ -94,7 +94,10 @@ void loop(SDL_Surface *screen, resources_t* res) {
       case SDL_QUIT: 
         loop = FALSE; break;
 
-      case SDL_KEYUP:
+      case SDL_KEYDOWN:
+        if(ev.key.keysym.sym == SDLK_ESCAPE)
+          loop = FALSE; break;
+
         if(ev.key.keysym.sym == SDLK_LEFT) 
           selected = max(0, selected-1);
         else if(ev.key.keysym.sym == SDLK_RIGHT)
