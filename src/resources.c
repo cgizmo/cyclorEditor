@@ -7,13 +7,6 @@
 #include "helper.h"
 
 /* HELPERS */
-char* strdup2(char* orig) {
-  char* new = malloc(sizeof(char) * (strlen(orig) + 1));
-
-  strcpy(new, orig);
-
-  return new;
-}
 
 res_t* createRes(char *id, char *resname) {
   res_t* r = malloc(sizeof(res_t));
@@ -25,16 +18,6 @@ res_t* createRes(char *id, char *resname) {
   stdFormat(&r->img);
 
   return r;
-}
-
-/* Returns a new string */
-char* strcat2(char *a, char *b) {
-  char *out = malloc(sizeof(char) * (strlen(a) + strlen(b) + 1));
-
-  strcpy(out, a);
-  strcat(out, b);
-
-  return out;
 }
 
 /* Exported funtions */

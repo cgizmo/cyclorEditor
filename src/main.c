@@ -5,6 +5,7 @@
 
 #include "resources.h"
 #include "helper.h"
+#include "map.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -17,7 +18,7 @@
 #define PADDING 25    // > FONT_SIZE+5
 #define DISP_CONTROLS 3 // Num of controls to display
 
-void loop(SDL_Surface*, resources_t*);
+void loop(SDL_Surface*, resources_t*, mapElements_t**);
 void displayControls(SDL_Surface *control, resources_t* res, int start, int disp, int selected);
 
 TTF_Font *font;
@@ -51,7 +52,9 @@ int main(int argc, char **argv) {
   if(res == NULL)
     exit(1);
 
-  loop(screen, res);
+  mapElements_t *m = NULL;
+  loop(screen, res, &m);
+  freeMapElements(m);
 
   freeResources(res);
   TTF_Quit();
@@ -59,7 +62,7 @@ int main(int argc, char **argv) {
   return 0;
 }
 
-void loop(SDL_Surface *screen, resources_t* res) {
+void loop(SDL_Surface *screen, resources_t* res, mapElements_t **m) {
   int loop = TRUE;
   SDL_Event ev;
   font = TTF_OpenFont("res/dejavu.ttf", FONT_SIZE);
@@ -87,16 +90,34 @@ void loop(SDL_Surface *screen, resources_t* res) {
 
   int selected = 0; // Absolute
   int start = 0;
+  SDL_Rect floatingPos;
+
   while(loop) {
     SDL_WaitEvent(&ev);
+    SDL_FillRect(map, NULL, SDL_MapRGB(screen->format, 255, 255, 255));
 
     switch(ev.type) {
       case SDL_QUIT: 
         loop = FALSE; break;
 
+      case SDL_MOUSEMOTION:
+        if(ev.motion.x < WIDTH &&
+           ev.motion.y < HEIGHT - DISP_CONTROLS) {
+          floatingPos.x = ev.motion.x;
+          floatingPos.y = ev.motion.y;
+        }
+        break; 
+
+      case SDL_MOUSEBUTTONUP:
+        if(ev.button.button == SDL_BUTTON_LEFT) 
+          cons(ev.button.x, ev.button.y, res->rs[selected], m);
+        break;
+
       case SDL_KEYDOWN:
-        if(ev.key.keysym.sym == SDLK_ESCAPE)
-          loop = FALSE; break;
+        if(ev.key.keysym.sym == SDLK_ESCAPE) {
+          loop = FALSE; 
+          break;
+        }
 
         if(ev.key.keysym.sym == SDLK_LEFT) 
           selected = max(0, selected-1);
@@ -114,7 +135,18 @@ void loop(SDL_Surface *screen, resources_t* res) {
 
       default: break;
     }
-    
+
+    /* Show the positioned stuff */
+    mapElements_t *it = *m;
+    SDL_Rect mapElemPos;
+    while(it != NULL) {
+      mapElemPos.x = it->x;
+      mapElemPos.y = it->y;
+      SDL_BlitSurface(it->res->img, NULL, map, &mapElemPos);
+      it = it->next;
+    }
+
+    SDL_BlitSurface(res->rs[selected]->img, NULL, map, &floatingPos);
     SDL_BlitSurface(map, NULL, screen, &mapPos);
     SDL_BlitSurface(control, NULL, screen, &controlPos);
     SDL_Flip(screen);

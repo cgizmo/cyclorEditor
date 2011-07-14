@@ -23,3 +23,22 @@ int max(int a, int b) {
   else
     return a;
 }
+
+char* strdup2(char* orig) {
+  char* new = malloc(sizeof(char) * (strlen(orig) + 1));
+
+  strcpy(new, orig);
+
+  return new;
+}
+
+/* Returns a new string */
+char* strcat2(char *a, char *b) {
+  char *out = malloc(sizeof(char) * (strlen(a) + strlen(b) + 1));
+
+  strcpy(out, a);
+  strcat(out, b);
+
+  return out;
+}
+
