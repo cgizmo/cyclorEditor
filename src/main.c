@@ -20,6 +20,7 @@
 
 void loop(SDL_Surface*, resources_t*, mapElements_t**);
 void displayControls(SDL_Surface *control, resources_t* res, int start, int disp, int selected);
+void writeMap(mapElements_t* m);
 
 TTF_Font *font;
 
@@ -54,6 +55,9 @@ int main(int argc, char **argv) {
 
   mapElements_t *m = NULL;
   loop(screen, res, &m);
+
+  writeMap(m);
+
   freeMapElements(m);
 
   freeResources(res);
@@ -198,4 +202,15 @@ void displayControls(SDL_Surface *control, resources_t* res, int start, int disp
 
     SDL_FreeSurface(text);
   }
+}
+
+void writeMap(mapElements_t* m) { 
+  FILE *map = fopen("output", "w");
+
+  while(m != NULL) { 
+    fprintf(map, "%d %d %s\n", m->x, m->y, m->res->name);
+    m = m->next;
+  }
+
+  fclose(map);
 }
