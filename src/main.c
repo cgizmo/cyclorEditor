@@ -110,7 +110,7 @@ void loop(SDL_Surface *screen, resources_t* res, mapElements_t **m) {
 
       case SDL_MOUSEBUTTONUP:
         if(ev.button.button == SDL_BUTTON_LEFT) 
-          cons(ev.button.x, ev.button.y, res->rs[selected], m);
+          consEnd(ev.button.x, ev.button.y, res->rs[selected], m);
         break;
 
       case SDL_KEYDOWN:

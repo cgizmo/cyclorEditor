@@ -11,7 +11,8 @@ typedef struct mapElements {
   struct mapElements* next;
 } mapElements_t;
 
-void cons(int x, int y, res_t *res, mapElements_t** xs);
+void cons(int x, int y, res_t *res, mapElements_t **xs);
+void consEnd(int x, int y, res_t *res, mapElements_t **xs);
 void freeMapElements(mapElements_t* m);
 
 #endif
