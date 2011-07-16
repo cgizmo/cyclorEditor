@@ -47,3 +47,16 @@ void freeMapElements(mapElements_t* m) {
     curr = next;
   }
 }
+
+void writeMap(mapElements_t* m) { 
+  FILE *map = fopen("output", "w");
+
+  mapE_t *it = m->head;
+  while(it != NULL) { 
+    fprintf(map, "%d %d %s\n", it->x, it->y, it->res->name);
+    it = it->next;
+  }
+
+  fclose(map);
+}
+
