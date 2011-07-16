@@ -18,7 +18,7 @@
 #define PADDING 25    // > FONT_SIZE+5
 #define DISP_CONTROLS 3 // Num of controls to display
 
-void loop(SDL_Surface*, resources_t*, mapElements_t**);
+void loop(SDL_Surface*, resources_t*, mapElements_t*);
 void displayControls(SDL_Surface *control, resources_t* res, int start, int disp, int selected);
 void writeMap(mapElements_t* m);
 
@@ -53,12 +53,11 @@ int main(int argc, char **argv) {
   if(res == NULL)
     exit(1);
 
-  mapElements_t *m = NULL;
+  mapElements_t m = {NULL, NULL};
+
   loop(screen, res, &m);
-
-  writeMap(m);
-
-  freeMapElements(m);
+  writeMap(&m);
+  freeMapElements(&m);
 
   freeResources(res);
   TTF_Quit();
@@ -66,7 +65,7 @@ int main(int argc, char **argv) {
   return 0;
 }
 
-void loop(SDL_Surface *screen, resources_t* res, mapElements_t **m) {
+void loop(SDL_Surface *screen, resources_t* res, mapElements_t *m) {
   int loop = TRUE;
   SDL_Event ev;
   font = TTF_OpenFont("res/dejavu.ttf", FONT_SIZE);
@@ -141,7 +140,7 @@ void loop(SDL_Surface *screen, resources_t* res, mapElements_t **m) {
     }
 
     /* Show the positioned stuff */
-    mapElements_t *it = *m;
+    mapE_t *it = m->head;
     SDL_Rect mapElemPos;
     while(it != NULL) {
       mapElemPos.x = it->x;
@@ -207,9 +206,10 @@ void displayControls(SDL_Surface *control, resources_t* res, int start, int disp
 void writeMap(mapElements_t* m) { 
   FILE *map = fopen("output", "w");
 
-  while(m != NULL) { 
-    fprintf(map, "%d %d %s\n", m->x, m->y, m->res->name);
-    m = m->next;
+  mapE_t *it = m->head;
+  while(it != NULL) { 
+    fprintf(map, "%d %d %s\n", it->x, it->y, it->res->name);
+    it = it->next;
   }
 
   fclose(map);

@@ -3,16 +3,21 @@
 
 #include "resources.h"
 
-typedef struct mapElements { 
+typedef struct mapE { 
   int x;
   int y;
   res_t *res;
 
-  struct mapElements* next;
+  struct mapE* next;
+} mapE_t;
+
+typedef struct mapElements { 
+  mapE_t* head;
+  mapE_t* last;
 } mapElements_t;
 
-void cons(int x, int y, res_t *res, mapElements_t **xs);
-void consEnd(int x, int y, res_t *res, mapElements_t **xs);
+void cons(int x, int y, res_t *res, mapElements_t *xs);
+void consEnd(int x, int y, res_t *res, mapElements_t *xs);
 void freeMapElements(mapElements_t* m);
 
 #endif

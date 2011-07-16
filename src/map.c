@@ -5,42 +5,45 @@
 #include "helper.h"
 #include "resources.h"
 
-void cons(int x, int y, res_t *res, mapElements_t** xs) { 
-  mapElements_t* head = malloc(sizeof(mapElements_t));
+void cons(int x, int y, res_t *res, mapElements_t* xs) { 
+  mapE_t* head = malloc(sizeof(mapE_t));
 
   head->x = x;
   head->y = y;
   head->res = res;
-  head->next = *xs;
+  head->next = xs->head;
 
-  *xs = head;
+  xs->head = head;
+
+  if(xs->last == NULL)
+    xs->last = head;
 }
 
-void consEnd(int x, int y, res_t *res, mapElements_t **xs) { 
-  if(*xs == NULL)
+void consEnd(int x, int y, res_t *res, mapElements_t *xs) { 
+  if(xs->last == NULL) {
     cons(x, y, res, xs);
+    xs->last = xs->head;
+  }
   else {
-    mapElements_t *i = *xs;
-    while(i->next != NULL) {
-      i = i->next;
-    }
+    mapE_t* last = malloc(sizeof(mapE_t));
 
-    mapElements_t* last = malloc(sizeof(mapElements_t));
     last->x = x;
     last->y = y;
     last->res = res;
     last->next = NULL;
 
-    i->next = last;
+    xs->last->next = last;
+    xs->last = last;
   }
 }
 
 void freeMapElements(mapElements_t* m) {
-  mapElements_t* next;
+  mapE_t* next;
+  mapE_t* curr = m->head;
 
-  while(m != NULL) { 
-    next = m->next;
-    free(m);
-    m = next;
+  while(curr != NULL) { 
+    next = curr->next;
+    free(curr);
+    curr = next;
   }
 }
