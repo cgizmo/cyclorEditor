@@ -95,49 +95,49 @@ void loop(SDL_Surface *screen, resources_t* res, mapElements_t *m) {
   SDL_Rect floatingPos;
 
   while(loop) {
-    SDL_WaitEvent(&ev);
-    SDL_FillRect(map, NULL, SDL_MapRGB(screen->format, 255, 255, 255));
+    while(SDL_PollEvent(&ev)) {
+      switch(ev.type) {
+        case SDL_QUIT: 
+          loop = FALSE; break;
 
-    switch(ev.type) {
-      case SDL_QUIT: 
-        loop = FALSE; break;
+        case SDL_MOUSEMOTION:
+          if(ev.motion.x < WIDTH &&
+              ev.motion.y < HEIGHT - DISP_CONTROLS) {
+            floatingPos.x = ev.motion.x;
+            floatingPos.y = ev.motion.y;
+          }
+          break; 
 
-      case SDL_MOUSEMOTION:
-        if(ev.motion.x < WIDTH &&
-           ev.motion.y < HEIGHT - DISP_CONTROLS) {
-          floatingPos.x = ev.motion.x;
-          floatingPos.y = ev.motion.y;
-        }
-        break; 
-
-      case SDL_MOUSEBUTTONUP:
-        if(ev.button.button == SDL_BUTTON_LEFT) 
-          consEnd(ev.button.x, ev.button.y, res->rs[selected], m);
-        break;
-
-      case SDL_KEYDOWN:
-        if(ev.key.keysym.sym == SDLK_ESCAPE) {
-          loop = FALSE; 
+        case SDL_MOUSEBUTTONUP:
+          if(ev.button.button == SDL_BUTTON_LEFT) 
+            consEnd(ev.button.x, ev.button.y, res->rs[selected], m);
           break;
-        }
 
-        if(ev.key.keysym.sym == SDLK_LEFT) 
-          selected = max(0, selected-1);
-        else if(ev.key.keysym.sym == SDLK_RIGHT)
-          selected = min(res->num-1, selected+1);
+        case SDL_KEYDOWN:
+          if(ev.key.keysym.sym == SDLK_ESCAPE) {
+            loop = FALSE; 
+            break;
+          }
 
-        // Scrolling of the control bar
-        if(start > selected)
-          start = selected;
-        if(selected > start + DISP_CONTROLS-1)
-          start = selected - DISP_CONTROLS + 1;
-        
-        displayControls(control, res, start, DISP_CONTROLS, selected); // NOTE : selected remains absolute
-        break;
+          if(ev.key.keysym.sym == SDLK_LEFT) 
+            selected = max(0, selected-1);
+          else if(ev.key.keysym.sym == SDLK_RIGHT)
+            selected = min(res->num-1, selected+1);
 
-      default: break;
+          // Scrolling of the control bar
+          if(start > selected)
+            start = selected;
+          if(selected > start + DISP_CONTROLS-1)
+            start = selected - DISP_CONTROLS + 1;
+
+          displayControls(control, res, start, DISP_CONTROLS, selected); // NOTE : selected remains absolute
+          break;
+
+        default: break;
+      }
     }
 
+    SDL_FillRect(map, NULL, SDL_MapRGB(screen->format, 255, 255, 255));
     /* Show the positioned stuff */
     mapE_t *it = m->head;
     SDL_Rect mapElemPos;
