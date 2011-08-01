@@ -52,8 +52,13 @@ void writeMap(mapElements_t* m) {
   FILE *map = fopen("output", "w");
 
   mapE_t *it = m->head;
+  int x, y;
   while(it != NULL) { 
-    fprintf(map, "%d %d %s\n", it->x, it->y, it->res->name);
+    // Get the center of the object
+    x = it->x + (it->res->img->w / 2);
+    y = it->y + (it->res->img->h / 2);
+
+    fprintf(map, "%d %d %s\n", x, y, it->res->name);
     it = it->next;
   }
 
