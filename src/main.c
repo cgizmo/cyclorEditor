@@ -17,6 +17,7 @@
 #define FONT_SIZE 14
 #define PADDING 25    // > FONT_SIZE+5
 #define DISP_CONTROLS 3 // Num of controls to display
+#define SCROLLING 15 // Number of pixels to scroll by
 
 void loop(SDL_Surface*, resources_t*, mapElements_t*);
 void displayControls(SDL_Surface *control, resources_t* res, int start, int disp, int selected);
@@ -81,10 +82,13 @@ void loop(SDL_Surface *screen, resources_t* res, mapElements_t *m) {
   /* The map area */
   SDL_Surface *map = NULL;
   SDL_Rect mapPos;
+  SDL_Rect mapMask; // For scrolling purposes
 
   map = SDL_CreateRGBSurface(SDL_HWSURFACE, WIDTH, HEIGHT - CONTROL_SIZE, 32, 0, 0, 0, 0);
   mapPos.x = 0;
   mapPos.y = 0;
+  mapMask.x = 0;
+  mapMask.y = 0;
   stdFormat(&map);
 
   SDL_FillRect(map, NULL, SDL_MapRGB(screen->format, 255, 255, 255));
@@ -109,8 +113,9 @@ void loop(SDL_Surface *screen, resources_t* res, mapElements_t *m) {
           break; 
 
         case SDL_MOUSEBUTTONUP:
+          // Make sure to offset the position of the object according to scrolling
           if(ev.button.button == SDL_BUTTON_LEFT) 
-            consEnd(ev.button.x, ev.button.y, res->rs[selected], m);
+            consEnd(ev.button.x + mapMask.x, ev.button.y + mapMask.y, res->rs[selected], m);
           break;
 
         case SDL_KEYDOWN:
@@ -119,10 +124,31 @@ void loop(SDL_Surface *screen, resources_t* res, mapElements_t *m) {
             break;
           }
 
-          if(ev.key.keysym.sym == SDLK_LEFT) 
-            selected = max(0, selected-1);
-          else if(ev.key.keysym.sym == SDLK_RIGHT)
-            selected = min(res->num-1, selected+1);
+          switch(ev.key.keysym.sym) {
+            // Selecting controls
+            case SDLK_LEFT:
+              selected = max(0, selected-1);
+              break;
+            case SDLK_RIGHT:
+              selected = min(res->num-1, selected+1);
+              break;
+
+            // Map scrolling
+            case SDLK_z: //Up
+              mapMask.y -= SCROLLING;
+              break;
+            case SDLK_s: //Down
+              mapMask.y += SCROLLING;
+              break;
+            case SDLK_d: //Right
+              mapMask.x += SCROLLING;
+              break;
+            case SDLK_q: //Left
+              mapMask.x -= SCROLLING;
+              break;
+
+            default: break;
+          }
 
           // Scrolling of the control bar
           if(start > selected)
@@ -138,12 +164,14 @@ void loop(SDL_Surface *screen, resources_t* res, mapElements_t *m) {
     }
 
     SDL_FillRect(map, NULL, SDL_MapRGB(screen->format, 255, 255, 255));
-    /* Show the positioned stuff */
+    /* Show the positioned stuff 
+        - make sure they are not drawn if outside of scrolled viewport */
     mapE_t *it = m->head;
     SDL_Rect mapElemPos;
     while(it != NULL) {
-      mapElemPos.x = it->x;
-      mapElemPos.y = it->y;
+      // Clipping of negative coordinates is done automatically by SDL
+      mapElemPos.x = it->x - mapMask.x; // offset to proper position
+      mapElemPos.y = it->y - mapMask.y;
       SDL_BlitSurface(it->res->img, NULL, map, &mapElemPos);
       it = it->next;
     }
